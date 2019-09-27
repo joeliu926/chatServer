@@ -1,0 +1,102 @@
+/*
+ * @Author: JoeLiu 
+ * @Date: 2018-06-25 10:44:45 
+ * @Last Modified by: JoeLiu
+ * @Last Modified time: 2018-07-13 09:48:40
+ */
+
+var debug = require('debug')('nodeejs:server');
+var http = require('http');
+var fs=require('fs');
+var path=require('path');
+var loger= require('./../utils/loger').loger();
+const mongoindex = require('./../mongoDAO/index')
+ ///////////////////////////////////////////////////////////////
+//{"bootenv":"dev","serverport":8041,"defaultenv":"dev"}
+
+let iRunPort=process.argv[2]||"9001"; //获取运行端口
+let sRunEnv=process.argv[3]||"dev"; //获取启动环境
+
+let bootConfigFile = "./../config/bootConfig.json";
+let oBootConfig={
+     serverport:iRunPort, //运行端口
+     bootenv:sRunEnv, //运行环境
+     defaultenv:"dev", //默认环境
+     pid:process.pid, //进程pid
+     update_time:new Date().getTime() //启动时间
+};
+  
+
+
+var constantPath=path.join(__dirname,bootConfigFile);
+let sBootConfig=JSON.stringify(oBootConfig);
+fs.writeFile(constantPath, sBootConfig, function(err){
+    if(err){
+        loger.error("error! " + bootConfigFile);
+        loger.error(err);
+        return false;
+    }
+    var app = require('../app');
+    app.set('port', iRunPort);
+    
+    mongoindex.connect(function(error){
+      if (error) throw error;
+    });
+
+    app.on('close', function(errno) {
+      mongoindex.disconnect(function(err) { });
+    });
+
+    var server = http.createServer(app);
+    server.listen(iRunPort);
+    loger.info("config success -",sBootConfig);
+    server.on('error', onError);
+    server.on('listening', onListening);
+
+    /**
+     * Event listener for HTTP server "listening" event.
+     */
+    function onListening() {
+      var addr = server.address();
+      var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+      debug('Listening on ' + bind);
+    }
+
+
+});
+/////////////////////////////////////////////////////
+/**
+ * Get port from environment and store in Express.
+ */
+process.on('uncaughtException', function(e) {
+  loger.debug("ee---------------",process.pid,process.name,process.uptime());
+  loger.error("ee-------",e);
+});
+
+/**
+ * Event listener for HTTP server "error" event.
+ */
+
+function onError(error) {
+  if (error.syscall !== 'listen') {
+    throw error;
+  }
+  //var bind = typeof port === 'string'
+  //  ? 'Pipe ' + port
+  //  : 'Port ' + port;
+  // handle specific listen errors with friendly messages
+  switch (error.code) {
+    case 'EACCES':
+      console.error(error + ' requires elevated privileges');
+      //process.exit(1);
+      break;
+    case 'EADDRINUSE':
+      console.error(error + ' is already in use');
+      //process.exit(1);
+      break;
+    default:
+      throw error;
+  }
+}

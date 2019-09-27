@@ -1,0 +1,16 @@
+{
+  "success":{"code":0,"msg":"success"},
+  "failed":{"code":1000,"msg":"failed"},
+  "redis_findF":{"code":1001,"msg":"can not find in redis database"},
+  "session_navF":{"code":1002,"msg":"the session is not available"},
+  "bind_F":{"code":1003,"msg":"session bind failed"},
+  "send_F":{"code":1004,"msg":"message send failed"},
+  "close_F":{"code":1005,"msg":"close failed"},
+  "delete_F":{"code":1006,"msg":"delete failed"},
+  "JSON_format_F":{"code":1006,"msg":"Data objects are incomplete"},
+  "JSON_F":{"code":1007,"msg":"JSON data format is incorrect"},
+  "bind_S":{"code":11,"msg":"session bind success"},
+  "send_S":{"code":12,"msg":"send success"},
+  "close_S":{"code":13,"msg":"close success"},
+  "delete_S":{"code":14,"msg":"delete success"}
+}
